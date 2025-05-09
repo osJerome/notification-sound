@@ -1,4 +1,5 @@
-import { createContext, useCallback, useContext, ReactNode } from 'react';
+import { createContext, useCallback, useContext } from 'react';
+import type { ReactNode } from 'react';
 
 // Strict type for context
 interface NotificationSoundContextType {
@@ -11,34 +12,26 @@ interface NotificationSoundProviderProps {
   children: ReactNode;
 }
 
-const playBeep = () => {
-  const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
-  const oscillator = ctx.createOscillator();
-  oscillator.type = 'sine';
-  oscillator.frequency.value = 880;
-  oscillator.connect(ctx.destination);
-  oscillator.start();
-  setTimeout(() => {
-    oscillator.stop();
-    ctx.close();
-  }, 200);
+const playNotificationSound = () => {
+  const audio = new Audio('/sounds/notification.mp3');
+  audio.play();
 };
 
 const notify = (title = 'Notification', options?: NotificationOptions) => {
   if ('Notification' in window) {
     if (Notification.permission === 'granted') {
       new Notification(title, options);
-      playBeep();
+      playNotificationSound();
     } else if (Notification.permission !== 'denied') {
       Notification.requestPermission().then(permission => {
         if (permission === 'granted') {
           new Notification(title, options);
-          playBeep();
+          playNotificationSound();
         }
       });
     }
   } else {
-    playBeep();
+    playNotificationSound();
   }
 };
 
